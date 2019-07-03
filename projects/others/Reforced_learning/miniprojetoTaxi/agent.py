@@ -13,8 +13,7 @@ class Agent:
         self.nA = nA
         self.alpha = alpha
         self.gamma = gamma
-        self.Q1 = defaultdict(lambda: np.zeros(self.nA))
-        self.Q2 = defaultdict(lambda: np.zeros(self.nA))
+        self.Q = defaultdict(lambda: np.zeros(self.nA))
         self.epsilon = eps
         self.episode = 0
 
@@ -29,8 +28,8 @@ class Agent:
         =======
         - action: an integer, compatible with the task's action space
         """
-
-        qs = self.Q1[state] + self.Q2[state] 
+        
+        qs = self.Q[state]  
 
         p = self.get_prop(qs)
 
@@ -64,7 +63,7 @@ class Agent:
         """
         
         
-        if np.random.randint(2) == 0:
-            self.Q1[state][action] = self.update_Q(self.Q1[state][action], self.Q2[next_state][np.argmax(self.Q1[next_state])], reward) 
-        else:
-            self.Q2[state][action] = self.update_Q(self.Q2[state][action], self.Q1[next_state][np.argmax(self.Q2[next_state])], reward)
+        p = self.get_prop(self.Q[next_state])
+
+        self.Q[state][action] = self.update_Q(self.Q[state][action],np.dot(p, self.Q[next_state]) , reward) 
+        

@@ -3,7 +3,7 @@ import sys
 import math
 import numpy as np
 
-def interact(env, agent, num_episodes=20000, window=100):
+def interact(env, agent,max_t = 30 ,num_episodes=20000, window=100, verbose = False):
     """ Monitor agent's performance.
     
     Params
@@ -26,12 +26,12 @@ def interact(env, agent, num_episodes=20000, window=100):
     samp_rewards = deque(maxlen=window)
     # for each episode
     for i_episode in range(1, num_episodes+1):
-        agent.episode = i_episode
+        agent.episode += 1 
         # begin the episode
         state = env.reset()
         # initialize the sampled reward
         samp_reward = 0
-        while True:
+        for _ in range(max_t):
             # agent selects an action
             action = agent.select_action(state)
             # agent performs the selected action
@@ -46,6 +46,7 @@ def interact(env, agent, num_episodes=20000, window=100):
                 # save final sampled reward
                 samp_rewards.append(samp_reward)
                 break
+        samp_rewards.append(samp_reward)
         if (i_episode >= 100):
             # get average reward from last 100 episodes
             avg_reward = np.mean(samp_rewards)
@@ -55,13 +56,14 @@ def interact(env, agent, num_episodes=20000, window=100):
             if avg_reward > best_avg_reward:
                 best_avg_reward = avg_reward
         # monitor progress
-        #print("\rEpisode {}/{} || Best average reward {}".format(i_episode, num_episodes, best_avg_reward), end="")
-        #sys.stdout.flush()
+        if verbose:
+            print("\rEpisode {}/{} || Best average reward {}".format(i_episode, num_episodes, best_avg_reward), end="")
+            sys.stdout.flush()
         # check if task is solved (according to OpenAI Gym)
         if best_avg_reward >= 9.7:
             print('\nEnvironment solved in {} episodes.'.format(i_episode), end="")
             break
-        if i_episode == num_episodes: print('\n')
+        #if i_episode == num_episodes: print('\n')
         
         #if i_episode > 500 and best_avg_reward < -200:
         #    break
